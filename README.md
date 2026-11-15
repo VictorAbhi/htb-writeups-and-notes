@@ -23,7 +23,7 @@ As an MSc Cybersecurity student (IMT Atlantique) with an **AWS Solutions Archite
 
 ```text
 htb-writeups-and-notes/
-├── 01-Applications-and-APIs/          # Web APIs, SSRF, SSTI, Python/Flask flaws
+├── 01-Application-security/          # Web APIs, SSRF, SSTI, Python/Flask flaws
 ├── 02-Docker-and-Kubernetes/    # Container escapes, K8s API & pod misconfigurations
 ├── 03-AWS-Cloud-Security/       # S3, IAM, Lambda, LocalStack cloud labs
 ├── 04-Active-Directory/         # Windows domains, pivoting, lateral movement
@@ -37,7 +37,7 @@ htb-writeups-and-notes/
 
 | Machine / Lab | Category | Difficulty | Key Vulnerabilities & Takeaways |
 | :--- | :--- | :--- | :--- |
-| **[Editorial](./01-Python-and-APIs/Editorial.md)** | Python & APIs | Easy | API Enumeration, SSRF, Credential Exposure, Git History Analysis |
+| **[Editorial](./01--Application-security/Editorial.md)** | Python & APIs | Easy | API Enumeration, SSRF, Credential Exposure, Git History Analysis |
 | *More coming soon...* | — | — | — |
 
 ---
