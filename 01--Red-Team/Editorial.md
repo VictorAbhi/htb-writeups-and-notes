@@ -1,4 +1,4 @@
-# [Machine Name] — Hack The Box
+# Editorial — Hack The Box
 
 * **Difficulty:** Easy
 * **OS:** Linux 
