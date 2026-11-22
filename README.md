@@ -23,11 +23,8 @@ As an MSc Cybersecurity student (IMT Atlantique) with an **AWS Solutions Archite
 
 ```text
 htb-writeups-and-notes/
-├── 01-Application-security/          # Web APIs, SSRF, SSTI, Python/Flask flaws
-├── 02-Docker-and-Kubernetes/    # Container escapes, K8s API & pod misconfigurations
-├── 03-AWS-Cloud-Security/       # S3, IAM, Lambda, LocalStack cloud labs
-├── 04-Active-Directory/         # Windows domains, pivoting, lateral movement
-├── 05-Blue-Team-Sherlocks/      # DFIR, log analysis, PCAP & incident response
+├── 01--Red-Team/          # Web APIs, SSRF, SSTI, Python/Flask flaws, Docker misconfig, AWS
+├── 02-Blue-Team-Sherlocks/      # DFIR, log analysis, PCAP & incident response
 └── Cheatsheets/                 # Enumeration, Ligolo-ng tunneling, and PrivEsc notes
 ```
 
